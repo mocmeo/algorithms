@@ -1,6 +1,3 @@
-import sys
-
-
 def reverseNumber(n):
     result = 0
     while (n > 0):
