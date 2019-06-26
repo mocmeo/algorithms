@@ -9,10 +9,7 @@ def removeElement(nums, val):
     nums.sort()
     if (sys.maxsize in nums):
         pos = nums.index(sys.maxsize)
-        num = nums[0:pos]
-        return len(num)
+        nums = nums[0:pos]
+        return len(nums)
     else:
-        return 0
-
-
-print(removeElement([2], 3))
+        return len(nums)
