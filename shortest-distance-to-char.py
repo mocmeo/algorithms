@@ -13,4 +13,19 @@ def shortestToChar(S, C):
     return result
 
 
-print(shortestToChar("e", "e"))
+def shortestToChar2(S, C):
+    prev = float('-inf')
+    result = []
+    for i, x in enumerate(S):
+        if x == C:
+            prev = i
+        result.append(i - prev)
+
+    for i in range(len(S) - 1, -1, -1):
+        if S[i] == C:
+            prev = i
+        result[i] = min(result[i], prev - i)
+    return result
+
+
+print(shortestToChar2("loveleetcode", "e"))
