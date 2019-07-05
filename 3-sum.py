@@ -6,6 +6,8 @@ def threeSum(nums):
         return []
     numDict = Counter(nums)
     triplets = set([])
+
+    # 0's cases
     if numDict[0] >= 3:
         triplets.add((0, 0, 0))
     if numDict[0] > 0:
@@ -15,7 +17,7 @@ def threeSum(nums):
                 if numDict[otherNum]:
                     triplets.add((0, otherNum, num))
 
-    # 1 negative, 2 positive
+    # 1 negative, 2 positive or vice versa
     for num in numDict.keys():
         reversedNum = -num
         sign = 1 if num > 0 else -1
