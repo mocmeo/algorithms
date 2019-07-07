@@ -1,19 +1,17 @@
 def groupAnagrams(strs):
     strDict = {}
-    for i, val in enumerate(strs):
+    for val in strs:
         sVal = "".join(sorted(val))
         if strDict.get(sVal) is None:
-            strDict[sVal] = [i]
+            strDict[sVal] = [val]
         else:
-            strDict[sVal].append(i)
+            strDict[sVal].append(val)
 
     result = []
     for key in strDict.keys():
-        anagrams = []
-        for index in strDict[key]:
-            anagrams.append(strs[index])
+        anagrams = strDict[key]
         result.append(anagrams)
     return result
 
 
-print(groupAnagrams(["eat"]))
+print(groupAnagrams(["eat", "tea", "tan", "ate", "nat", "bat"]))
