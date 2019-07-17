@@ -29,7 +29,7 @@ def merge2(intervals):
             merged.append(interval)
         else:
             maxEnd = max(merged[-1][1], interval[1])
-            merged[-1][1] = max(merged[-1][1], interval[1])
+            merged[-1][1] = maxEnd
     return merged
 
 
