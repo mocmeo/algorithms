@@ -29,5 +29,18 @@ def findLHS(nums):
     return result
 
 
-print(findLHS([1, 2, 1, 3, 0, 0, 2, 2, 1, 3, 3]))
-print(findLHS([1, 3, 2, 2, 5, 2, 3, 7]))
+def findLHS2(nums):
+    numDict = Counter(nums)
+    result = 0
+
+    for key in numDict.keys():
+        if numDict[key+1]:
+            result = max(result, numDict[key] + numDict[key+1])
+        if numDict[key-1]:
+            result = max(result, numDict[key] + numDict[key-1])
+    return result
+
+
+print(findLHS2([1, 2, 1, 3, 0, 0, 2, 2, 1, 3, 3]))
+print(findLHS2([1, 3, 2, 2, 5, 2, 3, 7]))
+print(findLHS2([1, 1, 1, 1]))
