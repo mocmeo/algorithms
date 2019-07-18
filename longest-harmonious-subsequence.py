@@ -36,8 +36,6 @@ def findLHS2(nums):
     for key in numDict.keys():
         if numDict[key+1]:
             result = max(result, numDict[key] + numDict[key+1])
-        if numDict[key-1]:
-            result = max(result, numDict[key] + numDict[key-1])
     return result
 
 
