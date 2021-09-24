@@ -37,5 +37,4 @@ print(nextPermutation([6,3,4,5,2,1]))
 print(nextPermutation([3,2,1]))
 print(nextPermutation([1,1,5]))
 print(nextPermutation([1,5,1]))
-
 print(nextPermutation([1,2]))
