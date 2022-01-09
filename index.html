@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <button onclick="handleDfs()">DFS</button>
+    <button onclick="handleBuildPathDfs()">Build Path Dfs</button>
+    <button onclick="handleBfs()">BFS</button>
+    <button onclick="handleAstar()">A*</button>
+    <!-- <button onclick="handleBuildPathBfs()">Build Path Bfs</button> -->
+    <button onclick="handleReset()">Reset</button>
+    <div id="graph"></div>
+  </body>
+  <script>
+    // let m = [
+    //   [0, 0, 1, 1, 1, 1],
+    //   [1, 0, 0, 0, 1, 1],
+    //   [1, 0, 1, 0, 1, 1],
+    //   [1, 0, 1, 0, 1, 1],
+    //   [0, 0, 1, 0, 0, 1],
+    //   [0, 1, 1, 1, 0, 0],
+    // ];
+    // let m = [
+    //   [0, 0, 0, 0, 0, 0],
+    //   [0, 0, 0, 0, 0, 0],
+    //   [0, 0, 0, 0, 0, 0],
+    //   [0, 0, 0, 0, 0, 0],
+    //   [0, 0, 0, 0, 0, 0],
+    //   [0, 0, 0, 1, 0, 0],
+    // ];
+    let m = [
+      [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+      [1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1],
+      [1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+      [1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0],
+      [0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0],
+      [1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0],
+      [1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+      [1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1],
+      [1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1],
+      [0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0],
+      [1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0],
+      [1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0],
+    ];
+    // let m = [
+    //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //   [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //   [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //   [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+    // ]
+    const TIMEOUT = 400;
+    const sleep = (ms) => {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    };
+
+    const buildGraph = () => {
+      let graph = document.getElementById("graph");
+      let html = "";
+      for (let i = 0; i < m.length; i++) {
+        html = html + '<div class="row">';
+        for (let j = 0; j < m[i].length; j++) {
+          let idCell = `[${i}][${j}]`;
+          let cell =
+            m[i][j] === 0
+              ? `<div id="${idCell}" onclick="handleWall(${i}, ${j})"  class="cell"><span>${i}, ${j}<span></div>`
+              : `<div id="${idCell}" onclick="handleWall(${i}, ${j})"  class="cell wall"></div>`;
+          html = html + cell;
+        }
+        html = html + "</div>";
+      }
+
+      graph.innerHTML = html;
+    };
+
+    const handleWall = (i, j) => {
+      m[i][j] = m[i][j] ? 0 : 1;
+      buildGraph();
+    };
+
+    ///////
+    const handleDfs = () => {
+      dfs([6, 6], [11, 11]);
+    };
+
+    let firstPointDFS;
+    let endPointDFS;
+    let mapCellDfs;
+    let findDfs = false;
+    const handleBuildPathDfs = () => {
+      console.log("ua alo", firstPointDFS, endPointDFS, mapCellDfs);
+      buildPath(firstPointDFS, endPointDFS, mapCellDfs);
+    };
+    let cell = [1, 2];
+    let color = "red";
+    let time = 0;
+    //////
+    const handleReset = () => {
+      buildGraph();
+    };
+    //////////
+    const handleBfs = () => {
+      bfs([6, 6], [11, 11]);
+    };
+
+    const handleBuildPathBfs = () => {
+      console.log("ua alo", mapCellDfs);
+      buildPath(firstPointDFS, endPointDFS, mapCellDfs);
+    };
+
+    ///////////
+
+    const setColor = (cell, color) => {
+      let cellItem = getElementByCell(cell);
+      cellItem.style.backgroundColor = color;
+    };
+
+    const setColorStart = (cell, color, letter = "A") => {
+      let cellItem = getElementByCell(cell);
+      cellItem.innerHTML = letter;
+      cellItem.style.backgroundColor = `${color}`;
+    };
+    const setColorTimeout = (cell, color) => {
+      setTimeout(() => {
+        setColor(cell, color);
+      }, time * TIMEOUT);
+    };
+
+    const setLabel = (cell) => {
+      let cellItem = getElementByCell(cell);
+      cellItem.classList.add("path");
+    };
+
+    const getElementByCell = (cell) => {
+      let idCell = `[${cell[0]}][${cell[1]}]`;
+      let cellItem = document.getElementById(idCell);
+      return cellItem;
+    };
+
+    const arrowRight = `<svg>
+        <defs>
+          <marker
+            id="arrow"
+            markerWidth="10"
+            markerHeight="13"
+            refx="2"
+            refy="6"
+            orient="auto"
+          >
+            <path d="M2,1 L2,10 L10,6 L2,2" style="fill:purple;" />
+          </marker>
+        </defs>
+        <path
+          d="M30,25 L50,25"
+          style="stroke:purple; stroke-width: 1.25px; fill: none;
+      marker-end: url(#arrow);"
+        />
+      </svg>`;
+    //M50,25 L10,25
+    const arrowLeft = `<svg style='left:-25px'>
+        <defs>
+          <marker
+            id="arrow"
+            markerWidth="10"
+            markerHeight="13"
+            refx="2"
+            refy="6"
+            orient="auto"
+          >
+            <path d="M2,1 L2,10 L10,6 L2,2" style="fill:purple;" />
+          </marker>
+        </defs>
+        <path
+          d="M40,25 L15,25"
+          style="stroke:purple; stroke-width: 1.25px; fill: none;
+      marker-end: url(#arrow);"
+        />
+      </svg>`;
+
+    const arrowBot = `<svg style='top: 30px;left: 10px;'>
+        <defs>
+          <marker
+            id="arrow"
+            markerWidth="10"
+            markerHeight="13"
+            refx="2"
+            refy="6"
+            orient="auto"
+          >
+            <path d="M2,1 L2,10 L10,6 L2,2" style="fill:purple;" />
+          </marker>
+        </defs>
+        <path
+          d="M10,0 L10,20"
+          style="stroke:purple; stroke-width: 1.25px; fill: none;
+      marker-end: url(#arrow);"
+        />
+      </svg>`;
+
+    const arrowTop = `<svg style="top: -19px;left: 10px;">
+        <defs>
+          <marker
+            id="arrow"
+            markerWidth="10"
+            markerHeight="13"
+            refx="2"
+            refy="6"
+            orient="auto"
+          >
+            <path d="M2,1 L2,10 L10,6 L2,2" style="fill:purple;" />
+          </marker>
+        </defs>
+        <path
+          d="M10,30 L10,10"
+          style="stroke:purple; stroke-width: 1.25px; fill: none;
+      marker-end: url(#arrow);"
+        />
+      </svg>`;
+
+    const setArrow = (curr, next) => {
+      if (!curr || !next) return;
+      if (typeof curr === "string") {
+        curr = JSON.parse(curr);
+      }
+      // [0, 0] => [1, 0]
+      let type =
+        curr[0] === next[0]
+          ? curr[1] > next[1]
+            ? "left"
+            : "right"
+          : curr[0] > next[0]
+          ? "top"
+          : "bot";
+
+      console.log("curr", curr);
+      let cellItem = getElementByCell(curr);
+      console.log("cellItem", cellItem);
+      //debugger;
+      if (type === "right") {
+        cellItem.insertAdjacentHTML("beforeend", arrowRight);
+      }
+      if (type === "left") {
+        cellItem.insertAdjacentHTML("beforeend", arrowLeft);
+      }
+      if (type === "bot") {
+        cellItem.insertAdjacentHTML("beforeend", arrowBot);
+      }
+      if (type === "top") {
+        cellItem.insertAdjacentHTML("beforeend", arrowTop);
+      }
+    };
+
+    const setArrowTimeout = (curr, next) => {
+      setTimeout(() => {
+        setArrow(curr, next);
+      }, time * TIMEOUT);
+    };
+
+    setTimeout(() => {
+      // setArrow([1, 1], [1, 0]);
+    });
+
+    let buildPath = async (start, end, map) => {
+      if (JSON.stringify(start) === JSON.stringify(end)) {
+        return;
+      }
+
+      let newEnd = map[JSON.stringify(end)];
+      newEnd = JSON.parse(newEnd);
+      setLabel(newEnd);
+      setColor(newEnd, "#00a6dd");
+      await sleep(TIMEOUT);
+      return buildPath(start, newEnd, map);
+    };
+
+    const validPoint = (cell) => {
+      const [i, j] = cell;
+      const points = [
+        [i, j - 1],
+        [i + 1, j],
+        [i, j + 1],
+        [i - 1, j],
+      ];
+      const lengthMaze = m.length;
+      const pointinMaze = points.filter((item) => {
+        return (
+          item[0] >= 0 &&
+          item[0] < lengthMaze &&
+          item[1] >= 0 &&
+          item[1] < lengthMaze
+        );
+      });
+
+      const validPoint = pointinMaze.filter((item) => {
+        return m[item[0]][item[1]] === 0;
+      });
+      //validPoint.forEach((item) => setColor(item, "green"));
+      return validPoint;
+    };
+
+    buildGraph();
+    // setColor([1, 1], "red");
+    //validPoint([1, 1]);
+    ////////////////////////
+    // var a =[1,0]
+    // var visit = [[1,0]]
+    // [1,0] !==[1,0]
+    // '[1,0]' === '[1,0]'
+
+    const bfs = async (start, end) => {
+      let queue = [start];
+      let visit = [JSON.stringify(start)];
+      let mapCell = {};
+
+      setColorStart(start, "green");
+      setColorStart(end, "green", "B");
+      while (queue.length !== 0) {
+        let item = queue.shift();
+        setColor(item, "#f3cccc");
+        setArrow(mapCell[JSON.stringify(item)], item);
+        await sleep(TIMEOUT);
+        let nextPoints = validPoint(item);
+        nextPoints.forEach((nextItem) => {
+          if (!visit.includes(JSON.stringify(nextItem))) {
+            visit.push(JSON.stringify(nextItem));
+            mapCell[JSON.stringify(nextItem)] = JSON.stringify(item);
+            queue.push(nextItem);
+          }
+        });
+
+        if (JSON.stringify(item) === JSON.stringify(end)) {
+          buildPath(start, end, mapCell);
+          console.log("mapCell", mapCell);
+          break;
+        }
+      }
+      setColor(start, "green");
+      setColor(end, "green");
+    };
+
+    const dfs = (start, end, visit = [], mapCell = {}, firstPoint) => {
+      if (!firstPoint) {
+        firstPoint = start;
+        visit.push(JSON.stringify(firstPoint));
+        setColorStart(firstPoint, "green");
+        setColorStart(end, "green", "B");
+      }
+      if (findDfs) return;
+      setColorTimeout(start, "#f3cccc");
+      //setColorTimeout(end, "green");
+      // This for timeout
+      time++;
+
+      if (JSON.stringify(start) === JSON.stringify(end)) {
+        // buildPath(firstPoint, end, mapCell);
+        firstPointDFS = firstPoint;
+        endPointDFS = end;
+        mapCellDfs = mapCell;
+        findDfs = true;
+        return;
+      } else {
+        let nextPoints = validPoint(start);
+        for (let i = 0; i < nextPoints.length; i++) {
+          let nextItem = nextPoints[i];
+
+          if (!visit.includes(JSON.stringify(nextItem))) {
+            visit.push(JSON.stringify(nextItem));
+            mapCell[JSON.stringify(nextItem)] = JSON.stringify(start);
+            if (findDfs) return;
+            setArrowTimeout(start, nextItem);
+            dfs(nextItem, end, visit, mapCell, firstPoint);
+          }
+        }
+        // nextPoints.forEach((nextItem) => {
+        //   if (!visit.includes(JSON.stringify(nextItem))) {
+        //     visit.push(JSON.stringify(nextItem));
+        //     mapCell[JSON.stringify(nextItem)] = JSON.stringify(start);
+        //     console.log("nextItem", nextItem);
+        //     dfs(nextItem, end, visit, mapCell, firstPoint);
+        //   }
+        // });
+      }
+    };
+
+    // dfs([0, 0], [5, 5]);
+    // bfs([3, 3], [5, 5]);
+
+    ///////////////////////////////////////////////////////////////
+    // A star algo
+    let mStar = [];
+    const buildGraphAstar = () => {
+      for (let i = 0; i < m.length; i++) {
+        let row = [];
+        for (let j = 0; j < m[i].length; j++) {
+          let item = {
+            i,
+            j,
+            f: 0,
+            h: 0,
+            g: 0,
+            previous: null,
+          };
+          row.push(item);
+        }
+        mStar.push(row);
+      }
+    };
+    const getSpot = (point) => {
+      return {
+        i: point[0],
+        j: point[1],
+        f: 0,
+        h: 0,
+        g: 0,
+        previous: null,
+      };
+    };
+    const equalPoints = (a, b) => {
+      return a.i === b.i && a.j === b.j;
+    };
+    buildGraphAstar();
+    let test = equalPoints(mStar[1][1], mStar[1][1]);
+
+    let openSet = [];
+    let closedSet = [];
+    const removeFromArray = (arr, elt) => {
+      console.log("arr", arr);
+      console.log("elt", elt);
+      let index = arr.findIndex((item) => item === elt);
+      arr.splice(index, 1);
+      console.log("arr after", arr);
+    };
+    const validPointsAStar = (point) => {
+      let cell = [point.i, point.j];
+      let nextPoints = validPoint(cell).map((item) => getSpot(item));
+      return nextPoints;
+    };
+    const checkPointExist = (arr, point) => {
+      let isExist = arr.some(
+        (item) => item.i === point.i && item.j === point.j
+      );
+      return isExist;
+    };
+    const heuristic = (a, b) => {
+      var d = Math.abs(a.i - b.i) + Math.abs(a.j - b.j);
+      return d;
+    };
+    const heuristic2 = (a, b) => {
+      let x = Math.abs(a.i - b.i);
+      let y = Math.abs(a.j - b.j);
+      let d = Math.sqrt(x * x + y * y);
+      // var d = Math.abs(a.i - b.i) + Math.abs(a.j - b.j)
+      //console.log(d, a, b)
+      return d;
+    };
+    let testa = validPointsAStar(mStar[1][1]);
+    console.log("testa", testa);
+    const aStar = async (start, end) => {
+      setColorStart(start, "green");
+      setColorStart(end, "green", "B");
+      start = getSpot(start);
+      end = getSpot(end);
+      openSet.push(start);
+      while (openSet.length !== 0) {
+        let lowestIndex = 0;
+        for (let i = 0; i < openSet.length; i++) {
+          if (openSet[i].f < openSet[lowestIndex].f) {
+            lowestIndex = i;
+          }
+        }
+        await sleep(TIMEOUT);
+        let current = openSet[lowestIndex];
+        setColor([current.i, current.j], "#f3cccc");
+        if (current.previous) {
+          setArrow(
+            [current.previous.i, current.previous.j],
+            [current.i, current.j]
+          );
+        }
+        console.log("current", current);
+        if (equalPoints(openSet[lowestIndex], end)) {
+          console.log("Done");
+          break;
+        }
+        // openSet.remove(current)
+        removeFromArray(openSet, current);
+        closedSet.push(current);
+        // debugger
+        let neighbors = validPointsAStar(current);
+        for (var i = 0; i < neighbors.length; i++) {
+          var neighbor = neighbors[i];
+
+          // Valid next spot?
+          if (!checkPointExist(closedSet, neighbor)) {
+            // Is this a better path than before?
+            var tempG = current.g + heuristic(neighbor, current);
+
+            // Is this a better path than before?
+            if (!checkPointExist(openSet, neighbor)) {
+              openSet.push(neighbor);
+            } else if (tempG >= neighbor.g) {
+              // No, it's not a better path
+              continue;
+            }
+
+            neighbor.g = tempG;
+            neighbor.h = heuristic(neighbor, end);
+            neighbor.f = neighbor.g + neighbor.h;
+            neighbor.previous = current;
+          }
+        }
+      }
+    };
+    handleAstar = () => {
+      aStar([6, 6], [11, 11]);
+    };
+  </script>
+  <style>
+    #graph {
+      margin-top: 50px;
+    }
+    .row {
+      display: flex;
+      flex-direction: row;
+    }
+    .cell {
+      width: 40px;
+      height: 40px;
+      border: 1px solid #00a6dd;
+      margin: 2px;
+      font-size: 30px;
+      text-align: center;
+      position: relative;
+    }
+    span {
+      font-size: 16px;
+      display: none;
+      height: 100%;
+      line-height: 2;
+    }
+    .cell:hover > span {
+      display: block;
+    }
+    .path > span {
+      display: block;
+    }
+    .cell > svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+      width: 61px;
+    }
+    button {
+      background-color: #00a6dd;
+      width: 120px;
+      height: 50px;
+      border-radius: 5px;
+    }
+
+    .wall {
+      background-color: black;
+    }
+  </style>
+</html>
