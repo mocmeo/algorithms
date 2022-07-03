@@ -1,28 +1,23 @@
 def numDecodings(s):
-	mapper = {}
-	for i in range(26):
-		mapper[str(i+1)] = 1
+	N = len(s)
+	dp = [0]*(N+2)
+	dp[N] = 1
+	for i in range(N-1,-1,-1):
+		if s[i] == '0':
+				dp[i] = 0
+		elif s[i] == '1':
+			dp[i] += dp[i+1] + dp[i+2]
+		elif s[i] == '2':
+			dp[i] = dp[i+1]
+			if i+1 < len(s) and s[i+1] <= '6':
+				dp[i] += dp[i+2]
+		else:
+			dp[i] = dp[i+1]
+	return dp[0]
 
-	arr = [0] * (len(s))
-	newS = ""
-	for i in range(len(s)):
-		newS += s[i]
+print(numDecodings("1"))
 
-		if len(newS) >= 2:
-			if newS[-2:] in mapper:
-				if len(newS) == 2:
-					arr[i] += 1
-				else:
-					arr[i] += arr[i-2]
-		if len(newS) >= 1:
-			if newS[-1] in mapper:
-				if len(newS) == 1:
-					arr[i] += 1
-				else:
-					arr[i] += arr[i-1]
-	return arr[-1]
-			
-print(numDecodings("12"))
+
 	
 
 	
